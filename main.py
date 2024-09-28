@@ -46,7 +46,11 @@ class MineField:
                 if self.mine_predictions[i][k] > max:
                     max = self.mine_predictions[i][k]
                     coords = (i, k)
+                    self.mine_field[i][k] = "M"
         self.mines.append(coords)
+        actions.context_click(driver.find_element(By.ID, f"{coords[0] + 1}_{coords[1] + 1}"))
+        actions.perform()
+        actions.reset_actions()
 
     def dig(self, square: tuple):
         element = driver.find_element(By.ID, f"{square[0] + 1, square[1] + 1}")
@@ -57,10 +61,10 @@ service = Service(executable_path="chromedriver.exe")
 driver = webdriver.Chrome(service=service)
 
 driver.get("https://minesweeperonline.com/#beginner")
+actions = ActionChains(driver)
 element = driver.find_element(By.XPATH, '//*[@id="5_5"]')
 element.click()
-mine_field = MineField()
+mine_field = MineField()    
 mine_field.find_mines()
-print(mine_field.mines)
-time.sleep(15)
+time.sleep(5)
 driver.quit()
