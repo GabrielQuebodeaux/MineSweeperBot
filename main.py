@@ -2,59 +2,107 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 import time
 
 
 class MineField:
-    def __init__(self):
-        self.mine_field = [["" for x in range(9)] for y in range(9)]
-        self.mine_predictions = [[0 for x in range(9)] for y in range(9)]
-        self.mines = []
-        self.update_mine_field()
-        self.update_mine_predictions()
-
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+        self.mine_field = None
+    
     def update_mine_field(self):
-        for i in range(9):
-            for k in range(9):
-                space = driver.find_element(By.ID, f"{i + 1}_{k + 1}")
-                status = space.get_attribute("class")
-                adjacent_mines = ""
-                if "open" in status:
-                    adjacent_mines = status[10:]
-                self.mine_field[i][k] = adjacent_mines
-        for mine in self.mines:
-            self.mine_field[mine[0]][mine[1]] = "M"
+        self.mine_field = []
+        for x in range(self.x):
+            for y in range(self.y):
 
-    def update_mine_predictions(self):
-        for i in range(9):
-            for k in range(9):
-                if self.mine_field[i][k] == "" or self.mine_field[i][k] == "0":
-                    continue
-                for x in range(-1, 2):
-                    for y in range(-1, 2):
-                        if i + x not in range(9) or k + y not in range(9):
-                            continue
-                        if self.mine_field[i + x][k + y] == "":
-                            self.mine_predictions[i + x][k + y] += 1
+# class MineField:
+#     def __init__(self):
+#         self._mine_field = [["" for x in range(9)] for y in range(9)]
+#         self._overlap_data = [[0 for x in range(9)] for y in range(9)]
+#         self._mines = []
+#         self.dig((5, 5))
+#         time.sleep(2)
+#         self.solve()
+    
+#     def update(self):
+#         self._update_mine_field()
+#         self._update_overlap_data()
 
-    def find_mines(self):
-        max = 0
-        coords = None
-        for i in range(9):
-            for k in range(9):
-                if self.mine_predictions[i][k] > max:
-                    max = self.mine_predictions[i][k]
-                    coords = (i, k)
-                    self.mine_field[i][k] = "M"
-        self.mines.append(coords)
-        actions.context_click(driver.find_element(By.ID, f"{coords[0] + 1}_{coords[1] + 1}"))
-        actions.perform()
-        actions.reset_actions()
+#     def _update_mine_field(self):
+#         for i in range(9):
+#             for k in range(9):
+#                 square_details = driver.find_element(By.ID, f"{i + 1}_{k + 1}").get_attribute("class")
+#                 if "0" in square_details:
+#                     self._mine_field[i][k] = "_"
+#                 elif "blank" in square_details:
+#                     self._mine_field[i][k] = "?"
+#                 else:
+#                     self._mine_field[i][k] = square_details[11:]
+#         for mine in self._mines:
+#             self._mine_field[mine[0]][mine[1]] = "M"
 
-    def dig(self, square: tuple):
-        element = driver.find_element(By.ID, f"{square[0] + 1, square[1] + 1}")
-        element.click()
+#     def _update_overlap_data(self):
+#         for i, row in enumerate(self._mine_field):
+#             for k, square in enumerate(row):
+#                 overlap = 0
+#                 if square == "?":
+#                     for x in range(-1, 2):
+#                         for y in range(-1, 2):
+#                             if i + x in range(9) and k + y in range(9):
+#                                 if self._mine_field[i + x][k + y] not in ("_", "?", "M"):
+#                                     overlap += 1
+#                 self._overlap_data[i][k] = overlap
+
+#     def _find_mine(self):
+#         self.update()
+#         max = 0
+#         mine_coords = None
+#         for i, row in enumerate(self._overlap_data):
+#             for k, square in enumerate(row):
+#                 if int(square) > max:
+#                     max = int(square)
+#                     mine_coords = (i, k)
+#         self._mines.append(mine_coords)
+#         actions.context_click(driver.find_element(By.ID, f"{mine_coords[0] + 1}_{mine_coords[1] + 1}"))
+#         actions.perform()
+#         actions.reset_actions()
+#         return mine_coords
+
+#     def _test_adjacent(self, coords: tuple):
+#         row = coords[0]
+#         col = coords[1]
+#         for i in range(-1, 2):
+#             for k in range(-1, 2):
+#                 if row + i not in range(9) or col + k not in range(9):
+#                     continue
+#                 if self._mine_field[row + i][col + k] in ("_", "M", "?"):
+#                     continue
+#                 blank_squares = []
+#                 mines = 0
+#                 for x in range(-1, 2):
+#                     for y in range(-1, 2):
+#                         if row + i + x not in range(9) or col + k + y not in range(9):
+#                             continue
+#                         if self._mine_field[row + i + x][col + k + y] == "M":
+#                             mines += 1
+#                         elif self._mine_field[row + i + x][col + k + y] == "?":
+#                             blank_squares.append((row + i + x, col + k + y))
+#                 if int(self._mine_field[row + i][col + k]) == mines:
+#                     for square in blank_squares:
+#                         self.dig(square)
+#                 self._update_mine_field()
+
+#     def solve(self):
+#         while len(self._mines) != 10 and not driver.find_element(By.ID, "face").get_attribute("class") == "facewin":
+#             coord = self._find_mine()
+#             self.update()
+#             self._test_adjacent(coord)
+#             self.update()
+
+
+#     def dig(self, square: tuple):
+#         driver.find_element(By.ID, f"{square[0] + 1}_{square[1] + 1}").click()
 
 
 service = Service(executable_path="chromedriver.exe")
@@ -62,9 +110,6 @@ driver = webdriver.Chrome(service=service)
 
 driver.get("https://minesweeperonline.com/#beginner")
 actions = ActionChains(driver)
-element = driver.find_element(By.XPATH, '//*[@id="5_5"]')
-element.click()
-mine_field = MineField()    
-mine_field.find_mines()
-time.sleep(5)
+mine_field = MineField()
+time.sleep(2)
 driver.quit()
